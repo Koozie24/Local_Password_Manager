@@ -1,0 +1,89 @@
+start loop
+    user login
+    -need to create account?
+    -yes
+        -prompt for username
+            -check db for usernames
+                -if name not unique
+                    -prompt again
+        -prompt for password
+        -prompt again for password
+            -check password complexity
+            -if not meets requiremnets && check duplicate entries
+                -display requirements & prompt again
+
+    -input user/pw 
+        -lookup in database
+        -check if exists
+            -if exists user
+                -validate pw
+                    -if not valid 
+                        prompt again
+                    -else 
+                        authenticate
+                        break loop
+
+start loop
+prompt user 
+ - lookup pw
+    -display all site/cred names
+    -prompt user for site/cred to search
+        -search title in list of creds
+            -if found
+                -get and display password
+            -else
+                -site not found
+                -return to prompt user
+ - add new pw
+    -prompt user for site/program name
+        -if empty prompt again
+    -prompt user for site/program username
+        -if empty prompt again
+    -prompt user if they want auto generated password (1) or input their own (2)
+        -case 1
+            -call pw gen function
+        -case 2
+            -prompt user to input pw
+                -if empty prompt again
+    -add to to db
+ - change pw
+    -display all site/cred names
+    -prompt user for site/cred to change
+        -if empty prompt again
+        -if no match
+            -display no match
+            -prompt again
+    -display site name, user and password
+    -prompt user for field to change
+        -check if site name, user, password input
+            -prompt user to input new data for selected field
+                -if blank prompt again
+            -update db entry
+            -display update status
+            -return to top of main loop
+        -if not name, user, or pw
+            -display invalid input and prompt again
+
+
+    
+
+optional exit to loop
+    -break loop
+
+pw generation function
+
+hash function for encrypting passwrod
+
+class Item
+    private:
+        type: (application / website / ?)
+        title (www.website.com / steam / ?)
+        username
+        password
+    public
+        get type
+        get title
+        get user
+        get pass
+
+        
