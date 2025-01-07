@@ -4,15 +4,8 @@
 #include <limits>
 #include "include/item.h"
 #include "include/user.h"
-
-/*Prints options at start of program*/
-void display_sign_in_screen(){
-    std::cout << "Passmate: Your simple password manager" << std::endl;
-    std::cout << "  (1) Create an account" << std::endl;
-    std::cout << "  (2) Sign-in to an existing account" << std::endl;
-    std::cout << "  (3) Testing pass on" << std::endl;
-    std::cout << "  Input number: ";
-}
+#include "include/display.h"
+#include "include/session.h"
 
 /*Takes input from user until valid integer is recieved. Returns an int*/
 int take_single_int_input(int number_of_options){
@@ -37,16 +30,9 @@ int take_single_int_input(int number_of_options){
     return single_input;
 }
 
-void display_home_screen(){
-    std::cout << "Passmate: Your simple password manager" << std::endl;
-    std::cout << "  (1) Look-Up a Credential" << std::endl;
-    std::cout << "  (2) Add a new credential item" << std::endl;
-    std::cout << "  (3) Browse credentials" << std::endl;
-    std::cout << "  (4) Sign-out of current session" << std::endl;
-    std::cout << "  Input number: ";
-}
-
 int main(){
+    
+    Session session("tcp://127.0.0.1:3306", "passmateadmin", "D1774%!f71pG", "passmate"); //initialize session
     
     bool current_session = false;
     display_sign_in_screen(); //show sign in/create account options
