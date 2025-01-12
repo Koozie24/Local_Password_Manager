@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <string>
 #include <limits>
+#include <cstdlib>
+#include <ctime>
 #include <mysql_driver.h>
 #include <mysql_connection.h>
 #include <cppconn/statement.h>
@@ -47,7 +49,23 @@ std::unique_ptr<sql::ResultSet> get_username(const std::string &search_name, std
     return nullptr;
 }
 
+void create_new_user(std::shared_ptr<sql::Connection> conn, const std::string &user_name, const std::string &password_hash, const std::string &salt, const std::string &email){
+    try{
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("INSERT INTO users ('username', 'email', 'password_hash', 'salt) VALUES (?, ?, ?, ?)"));
+        pstmt->setString(1, user_name);
+        pstmt->setString(2, email);
+        pstmt->setString(3, password_hash);
+        pstmt->setString(4, salt);
+        pstmt->executeUpdate();
+    }
+    catch(sql::SQLException &e){
+        std::cerr << e.what() << std::endl;
+    }
+
+}
+
 int main(){
+    std::srand(std::time(0)); // seed random 
     bool running = true;
 
     while(running){
@@ -60,9 +78,27 @@ int main(){
         int start_screen_command = take_single_int_input(3); //take user command
         std::unique_ptr<sql::ResultSet> result_user;
         switch(start_screen_command){ //handling sign in screen
-            case(1): //create account
+            case(1): {//create account
                 std::cout << "Creating an account.. " << std::endl; 
+
+                std::cout << "Username: " << std::endl;
+                std::string new_user = take_string_input();
+                std::cout << "password: " << std::endl;
+                std::string passcode = take_string_input();
+                std::cout << "email: " <<std::endl;
+                std::string new_email = take_string_input();
+
+                User new_user_account = User(new_user, passcode, new_email);
+
+                //std::cout << new_user_account.getUsername() << std::endl;
+                //std::cout << new_user_account.getEmail() << std::endl;
+                std::cout << new_user_account.getSalt() << std::endl;
+                //std::cout << new_user_account.getPassword() << std::endl;
+
+                take_string_input();
+
                 break; 
+            }
             case(2): {  //account sign in scoped block
                 while(!current_session){
                     clear_screen();
