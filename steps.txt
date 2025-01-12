@@ -11,9 +11,9 @@ start loop
             -check password complexity
             -if not meets requiremnets && check duplicate entries
                 -display requirements & prompt again
-
+----------------DONE-------------------
     -input user/pw 
-        -lookup in database
+        -lookup in database               
         -check if exists
             -if exists user
                 -validate pw
@@ -22,7 +22,7 @@ start loop
                     -else 
                         authenticate
                         break loop
-
+-----------------------------------------
 start loop
 prompt user 
  - lookup pw
@@ -66,9 +66,10 @@ prompt user
 
 
     
-
+-----DONE-------
 optional exit to loop
     -break loop
+----------------
 
 pw generation function
 
