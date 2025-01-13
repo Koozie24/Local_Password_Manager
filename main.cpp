@@ -1,7 +1,6 @@
 #include <iostream>
 #include <algorithm>
 #include <string>
-#include <limits>
 #include <cstdlib>
 #include <ctime>
 #include <mysql_driver.h>
@@ -13,58 +12,8 @@
 #include "include/user.h"
 #include "include/display.h"
 #include "include/session.h"
-
-/*Takes input from user until valid integer is recieved. Returns an int*/
-int take_single_int_input(int number_of_options){
-    int single_input;
-    for(;;){
-        std::cin >> single_input;
-        if((number_of_options== 3 && single_input >= 1 && single_input <= 3) || //3 option
-        (number_of_options == 4 && single_input >=1 && single_input <= 4)){ // 4 options
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); //clear input buffer for getline
-            break;
-        }
-        std::cout << "Sorry, that option is not valid. Try again from the options listed: ";
-        std::cin.clear(); //reset cin state
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); //clear input buffer of invalid input
-    }
-
-    return single_input;
-}
-
-/*Takes a string argument of a username to search and a shared pointer to a connection to sql database.
-substitutes username to a prepared statement and return a pointer to a result set*/
-std::unique_ptr<sql::ResultSet> get_username(const std::string &search_name, std::shared_ptr<sql::Connection> conn){
-    try{
-        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("SELECT * FROM users WHERE username = ?"));
-        pstmt->setString(1, search_name);
-        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-
-        return res;
-    }
-    catch(sql::SQLException &e){
-        std::cerr << e.what() << std::endl;
-    }
-
-    return nullptr;
-}
-
-/*Takes four string arguments for account infomration, and a shared pointer to a connection to sql database. 
-Tries to insert prepared statement to DB and outputs the error if unsuccessful.*/
-void create_new_user(std::shared_ptr<sql::Connection> conn, const std::string &user_name, const std::string &password_hash, const std::string &salt, const std::string &email){
-    try{
-        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("INSERT INTO users ('username', 'email', 'password_hash', 'salt) VALUES (?, ?, ?, ?)"));
-        pstmt->setString(1, user_name);
-        pstmt->setString(2, email);
-        pstmt->setString(3, password_hash);
-        pstmt->setString(4, salt);
-        pstmt->executeUpdate();
-    }
-    catch(sql::SQLException &e){
-        std::cerr << e.what() << std::endl;
-    }
-
-}
+#include "include/inputs.h"
+#include "include/db_operations.h"
 
 bool check_password_complexity(const std::string& password){
     bool number = false;
