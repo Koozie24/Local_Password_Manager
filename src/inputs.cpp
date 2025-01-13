@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 #include <limits>
-#include "include/inputs.h"
+#include "../include/inputs.h"
 
 std::string take_string_input(){
     for(;;){

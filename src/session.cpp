@@ -1,7 +1,7 @@
 #include <cppconn/driver.h>
 #include <cppconn/exception.h>
 #include <iostream>
-#include "include/session.h"
+#include "../include/session.h"
 
 //established a connection to database when Session object is created
 Session::Session(const std::string &db_host, const std::string &username, const std::string &password, const std::string &db_name){

@@ -1,6 +1,6 @@
 #include <string>
 #include <iostream>
-#include "include/display.h"
+#include "../include/display.h"
 
 /*Clears the screen on Windows and Linux OS's*/
 void clear_screen(){
