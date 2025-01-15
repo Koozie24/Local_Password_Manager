@@ -134,7 +134,10 @@ int main(){
                 bool meets_input_requirements = false;
                 std::vector<std::string> account_details = create_new_account(session); //call function to get a vector of strings containing inputs
 
-                User new_user_account = User(account_details[0], account_details[1], account_details[2]); //create user object using account details
+                User new_user_account = User(account_details[0], account_details[1], account_details[2], session.getConnection()); //create user object using account details
+                
+                std::string test = take_string_input();
+                //create_new_user(session.getConnection(), new_user_account); //insert new user into DB
 
                 break; 
             }
