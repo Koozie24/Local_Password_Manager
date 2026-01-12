@@ -1,3 +1,7 @@
+#ifndef USER_H
+
+#define USER_H
+
 #include <string>
 #include <cstdlib>
 #include <openssl/evp.h>
@@ -108,3 +112,5 @@ class User{
         //authentication function
         //reset pw function
 };
+
+#endif

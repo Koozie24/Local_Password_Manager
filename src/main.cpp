@@ -1,83 +1,17 @@
 #include <iostream>
 #include <algorithm>
-#include <string>
-#include <cstdlib>
 #include <ctime>
-#include <fstream>
 #include <mysql_driver.h>
 #include <mysql_connection.h>
 #include <cppconn/statement.h>
 #include <cppconn/prepared_statement.h>
 #include <cppconn/resultset.h>
-#include "include/item.h"
-#include "include/user.h"
-#include "include/display.h"
-#include "include/session.h"
-#include "include/inputs.h"
-#include "include/db_operations.h"
-
-bool check_password_complexity(const std::string& password){
-    bool number = false;
-    bool upperletter = false;
-    bool lowerletter = false;
-    bool special_char = false;
-    int length_of_pw = password.length();
-    bool requirements_met = false;
-
-     for(char c : password){
-        //convert current char to ordinal value and check against ranges of values if given flag is false
-        int ordinal_value_of_char = static_cast<int>(c);
-
-        if(ordinal_value_of_char >= 97 && ordinal_value_of_char <= 122 && lowerletter == false){
-            lowerletter = true;
-        }
-        if(ordinal_value_of_char >= 65 && ordinal_value_of_char <= 90 && upperletter == false){
-            upperletter = true;
-        }
-        if(ordinal_value_of_char >= 48 && ordinal_value_of_char <= 57 && number == false){
-            number = true;
-        }
-        if(ordinal_value_of_char >= 32 && ordinal_value_of_char <= 47 && special_char == false){
-            special_char = true;
-        }
-     }
-
-     if(number == true && upperletter == true && lowerletter == true && special_char == true && length_of_pw >= 10){
-        requirements_met = true; //password requirements are met
-     }
-
-     return requirements_met;
-}
-
-bool check_valid_email(const std::string& email){
-    bool is_valid_email = false;
-    bool contain_at_symbol = false;
-    bool contains_valid_dot = false;
-
-    for(char c : email){
-        if(c == '@'){ 
-            contain_at_symbol = true;
-            break;
-        }
-    }
-
-    int string_length = email.length();
-    if(string_length >= 7){ //check for minimum length of email
-        int last_index = string_length - 4; //acount for .com or .net etc
-        std::string domain = email.substr(last_index, 4); //get 4 letter substring from given index
-
-        std::cout <<domain << std::endl;
-        if(domain == ".com" || domain == ".net" || domain == ".org"){ //if this domain
-            contains_valid_dot = true;
-        }
-    }
-
-    if(contains_valid_dot == true && contain_at_symbol == true){
-        is_valid_email = true;
-    }
-
-    return is_valid_email;
-}
+#include "../include/item.h"
+#include "../include/user.h"
+#include "../include/display.h"
+#include "../include/session.h"
+#include "../include/inputs.h"
+#include "../include/db_operations.h"
 
 /*function that takes inputs from user to create a new account. takes an argument of a reference to a session object
 Return a vector of strings if email is valid and password meets complexity and no account with username exists*/
@@ -116,66 +50,19 @@ std::vector<std::string> create_new_account(Session& session){
     return account_details;
 }
 
-std::string read_text_from_file(std::ifstream& file){
-    std::string text, my_str;
-
-    while(getline(file, my_str)){
-        text += my_str;
-    }
-    return text;
-}
-
-std::string parse_string_for_account_info(std::string& text){
-    std::string account, password;
-    int whitespace_found = 0, sep_found = 0;
-    for(char c : text){
-        if(c == ','){
-            sep_found = 1;
-            continue;
-        }
-        if(c == ' '){
-            whitespace_found = 1;
-            sep_found  = 0;
-            continue;
-        }
-        if(sep_found && !whitespace_found){
-            account += c;
-        }
-        else if(sep_found && whitespace_found){
-            password += c;
-        }
-    }
-    return account, password;
-}
-
-std::string read_in_creds(std::string file_path){
-    std::ifstream file(file_path);
-
-    if(!file.is_open()){
-        std::cerr<< "failed to open file at: " << file_path << std::endl;
-        exit(1);
-    }
-
-    std::string text = read_text_from_file(file);
-    if(!text.length()){
-        std::cerr << "Not able to read text at: " << file_path << std::endl;
-    }
-    
-    std::string account, password = parse_string_for_account_info(text);
-
-    return account, password;
-}
-
 int main(){
     std::srand(std::time(0)); // seed random 
     bool running = true;
 
-    const std::string file_path = "../info.txt";
-    const std::string account, password = read_in_creds(file_path);
+    Creds credentials;
+    const std::string file_path = "info.txt";
+    read_in_creds(file_path, credentials);
+    std::cout << "Account is: " << "Z" << credentials.account << "Z" << std::endl;
+    std::cout << "Password is: " << "Z" << credentials.password << "Z" << std::endl;
 
     while(running){
-        Session session("tcp://127.0.0.1:3306", account, password, "PASSMATE"); //initialize session with localhost,
-        
+        Session session("tcp://127.0.0.1:3306", credentials.account, credentials.password, "PASSMATE"); //initialize session with localhost,
+        //Session session("tcp://127.0.0.1:3306", "passmateadmin", "D1774%!f71pG", "PASSMATE");
         std::string signed_in_user_name;
         bool current_session = false;
         clear_screen();
@@ -196,8 +83,15 @@ int main(){
                 break; 
             }
             case(2): {  //account sign in scoped block
+                const int max_attempts_allowed = 3;
+                bool attempted_sign_in = false;
+                int sign_in_attempts = 0;
                 while(!current_session){
                     clear_screen();
+                    if(attempted_sign_in) std::cout << "Username or password is incorrect..." << std::endl, std::cout << "You have "<< (max_attempts_allowed - sign_in_attempts) << " attemps remaining. " << std::endl;
+
+                    if(sign_in_attempts == max_attempts_allowed) std::cout << "Too many failed attempts." << std::endl, exit(1);
+
                     std::pair<std::string, std::string> login_string = display_sign_in_screen(); //show screen to input username
     
                     result_user = get_username(login_string.first, session.getConnection()); //get resulting user account info
@@ -210,7 +104,8 @@ int main(){
                         }
                     }
                     else{
-                        std::cout << "Username or password is incorrect..." << std::endl;
+                        attempted_sign_in = true;
+                        sign_in_attempts++;
                     }
                 }
                 break;

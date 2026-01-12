@@ -1,3 +1,7 @@
+#ifndef DISPLAY_H
+
+#define DISPLAY_H
+
 #include <string>
 #include <iostream>
 #include "inputs.h"
@@ -12,3 +16,5 @@ void display_start_screen();
 void display_home_screen(const std::string &signed_in_user_name);
 
 std::pair <std::string, std::string> display_sign_in_screen();
+
+#endif

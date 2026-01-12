@@ -14,4 +14,13 @@ class Session {
     
         std::shared_ptr<sql::Connection> getConnection(); //get database connection
 };
+
+struct Creds {
+        std::string account;
+        std::string password;
+    };
+
+std::string read_text_from_file(std::ifstream& file);
+void read_in_creds(std::string file_path, Creds& credentials);
+void parse_string_for_account_info(std::string& text, Creds& credentials);
 #endif

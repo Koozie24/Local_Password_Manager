@@ -37,9 +37,7 @@ Only the hash and salt are stored in the database.
 
 Backend: MySQL
 
-Environment: Running locally inside WSL
-
-Access via MySQL Connector/C++
+Environment: Running locally
 
 ## Dependencies
 
@@ -50,8 +48,6 @@ MySQL Connector/C++
 OpenSSL
 
 MySQL Server (local)
-
-Linux / WSL environment recommended
 
 ## Current Status
 
