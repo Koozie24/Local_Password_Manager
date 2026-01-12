@@ -21,12 +21,7 @@ class User{
                 salt = get_random_salt();
 
                 hash_result = hash_password(salt, password);
-                std::cout << "Hash is: ";
-                std::cout << hash_result << std::endl;
-
-                //create_new_user(conn, *this); //insert new user into DB
-                //hash function
-                //add to db function
+                //create_new_user(conn, *this); //insert new user into DB UNCOMMENT WHEN READY TO TEST INSERTS
             }
 
 
@@ -55,6 +50,7 @@ class User{
             }
             return random_salt;
         }
+
         /*Runs through SHA256 hashing algorithm and returns the hashed password as string
         Returns vector of unsigned chars https://wiki.openssl.org/index.php/EVP_Message_Digests*/
         std::vector<unsigned char> hash_function(std::string plain_text){

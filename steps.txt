@@ -1,4 +1,5 @@
 start loop
+----------------DONE-------------------
     user login
     -need to create account?
     -yes
@@ -11,7 +12,6 @@ start loop
             -check password complexity
             -if not meets requiremnets && check duplicate entries
                 -display requirements & prompt again
-----------------DONE-------------------
     -input user/pw 
         -lookup in database               
         -check if exists

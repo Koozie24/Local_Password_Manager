@@ -1,3 +1,6 @@
 .vscode/settings.json
 main.o
 steps.txt
+info.txt
+test.o
+test.cpp

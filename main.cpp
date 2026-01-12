@@ -3,6 +3,7 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
 #include <mysql_driver.h>
 #include <mysql_connection.h>
 #include <cppconn/statement.h>
@@ -115,12 +116,65 @@ std::vector<std::string> create_new_account(Session& session){
     return account_details;
 }
 
+std::string read_text_from_file(std::ifstream& file){
+    std::string text, my_str;
+
+    while(getline(file, my_str)){
+        text += my_str;
+    }
+    return text;
+}
+
+std::string parse_string_for_account_info(std::string& text){
+    std::string account, password;
+    int whitespace_found = 0, sep_found = 0;
+    for(char c : text){
+        if(c == ','){
+            sep_found = 1;
+            continue;
+        }
+        if(c == ' '){
+            whitespace_found = 1;
+            sep_found  = 0;
+            continue;
+        }
+        if(sep_found && !whitespace_found){
+            account += c;
+        }
+        else if(sep_found && whitespace_found){
+            password += c;
+        }
+    }
+    return account, password;
+}
+
+std::string read_in_creds(std::string file_path){
+    std::ifstream file(file_path);
+
+    if(!file.is_open()){
+        std::cerr<< "failed to open file at: " << file_path << std::endl;
+        exit(1);
+    }
+
+    std::string text = read_text_from_file(file);
+    if(!text.length()){
+        std::cerr << "Not able to read text at: " << file_path << std::endl;
+    }
+    
+    std::string account, password = parse_string_for_account_info(text);
+
+    return account, password;
+}
+
 int main(){
     std::srand(std::time(0)); // seed random 
     bool running = true;
 
+    const std::string file_path = "../info.txt";
+    const std::string account, password = read_in_creds(file_path);
+
     while(running){
-        Session session("tcp://127.0.0.1:3306", "passmateadmin", "D1774%!f71pG", "passmate"); //initialize session
+        Session session("tcp://127.0.0.1:3306", account, password, "PASSMATE"); //initialize session with localhost,
         
         std::string signed_in_user_name;
         bool current_session = false;
