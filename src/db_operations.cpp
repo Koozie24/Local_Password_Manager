@@ -18,7 +18,7 @@ std::unique_ptr<sql::ResultSet> get_username(const std::string &search_name, std
         return res;
     }
     catch(sql::SQLException &e){
-        std::cerr << e.what() << std::endl;
+        std::cerr << e.what() << "\n";
     }
 
     return nullptr;

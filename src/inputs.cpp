@@ -80,7 +80,7 @@ bool check_valid_email(const std::string& email){
         int last_index = string_length - 4; //acount for .com or .net etc
         std::string domain = email.substr(last_index, 4); //get 4 letter substring from given index
 
-        std::cout <<domain << std::endl;
+        std::cout <<domain << "\n";
         if(domain == ".com" || domain == ".net" || domain == ".org"){ //if this domain
             contains_valid_dot = true;
         }

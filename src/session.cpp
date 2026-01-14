@@ -10,10 +10,10 @@ Session::Session(const std::string &db_host, const std::string &username, const 
         sql::Driver *driver = get_driver_instance();
         conn = std::shared_ptr<sql::Connection>(driver->connect(db_host, username, password));
         conn->setSchema(db_name); //equivalent to USE db name
-        std::cout << "Connected to database: " << db_name << std::endl;
+        std::cout << "Connected to database: " << db_name << "\n";
     }
     catch(sql::SQLException &e){
-        std::cerr << "Error connecting to database: " << e.what() << std::endl;
+        std::cerr << "Error connecting to database: " << e.what() << "\n";
         throw;
     }
 }
@@ -57,13 +57,13 @@ void read_in_creds(std::string file_path, Creds& credentials){
     std::ifstream file(file_path);
 
     if(!file.is_open()){
-        std::cerr<< "failed to open file at: " << file_path << std::endl;
+        std::cerr<< "failed to open file at: " << file_path << "\n";
         exit(1);
     }
 
     std::string text = read_text_from_file(file);
     if(!text.length()){
-        std::cerr << "Not able to read text at: " << file_path << std::endl;
+        std::cerr << "Not able to read text at: " << file_path << "\n";
     }
     
     parse_string_for_account_info(text, credentials);
