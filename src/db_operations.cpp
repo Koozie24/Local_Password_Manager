@@ -37,7 +37,7 @@ std::vector<unsigned char> Account::hash_function(std::string plain_text){
 }
 
 /*Function takes two string arguments salt and a plain text password. */
-void Account::hash_password(const std::string& salt, const std::string& plain_password){
+std::string Account::hash_password(const std::string& salt, const std::string& plain_password){
     std::string plain_text  = plain_password + salt; //concatenate password and salt
     
     std::vector<unsigned char> hash = hash_function(plain_text); //get back hashed char vector
@@ -47,7 +47,7 @@ void Account::hash_password(const std::string& salt, const std::string& plain_pa
         final_hash += c; 
     }
 
-    setHash(final_hash);
+    return(final_hash);
 
 }
 
@@ -149,4 +149,21 @@ void Authentication::setValuesFromDbFetch(){
     }
 
 }
+
+bool Authentication::checkClearToAttemptAuth(){
+    if(getExtractStatus() && getUserExists()) { setLoginAttemptsRemaining(); return true;}
+    else return false;
+}
+
+bool Authentication::compareHashValues(const std::string &password_str_input){
+    std::string salt = getSalt();
+    std::string stored_hash = getHash();
+
+    std::string user_input_hash = hash_password(salt, password_str_input);
+
+    setInputHash(user_input_hash);
+
+    //getHash(); and then compare the two. If they are are the same. We set successful login to true
+}
+
 // ----------------------------END Authentication Class Methods------------------------------------------------------------------------------------------------------------------------------------------------------------------

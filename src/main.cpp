@@ -19,6 +19,7 @@ int main(){
 
     while(running){
         Session * session = new Session("tcp://127.0.0.1:3306", credentials.account, credentials.password, "PASSMATE"); //initialize session with localhost,
+        User * logged_in_user = nullptr; // declate user in scope of main
         std::string signed_in_user_name;
         bool current_session = false;
 
@@ -50,9 +51,39 @@ int main(){
             }
             case(2): //account sign in
             {  
-                const int max_attempts_allowed = 3;
-                bool attempted_sign_in = false;
-                int sign_in_attempts = 0;
+                int first_acct_inp = 0;
+                bool account_name_valid = false;
+                
+                Authentication * login_user = nullptr;
+
+                while(!account_name_valid){ //attempt to input a valid account name
+                    if(first_acct_inp > 0 ) std::cout << "\nThere was no account found matching that name.";
+                    std::string acct_name_input = take_login_attempt_name();
+                    login_user = new Authentication(acct_name_input, session->getConnection());
+
+                    if(login_user->getUserExists()){
+                        account_name_valid = true;
+                        break;
+                    }
+                    if(first_acct_inp == 0) first_acct_inp++;
+
+                    delete login_user;
+                }
+
+                if(!login_user->checkClearToAttemptAuth()) {std::cout << "\n\n\t\t Something wrong, clear to attempt auth failed"; break;}
+                
+                bool first_attempt = true;
+                while(login_user->getAttemptsRemaining() > 0){
+
+                    clear_screen();
+                    if(login_user->getAttemptsRemaining() < 3) std::cout << "\n You have " << login_user->getAttemptsRemaining() << " login attempts remaining.";
+
+                    std::string acct_password_input = take_login_attempt_password();
+
+
+                    //login_success = login_user.getAuthStatus();
+    
+                }
                 /*
                 while(!current_session){
                     clear_screen();
@@ -77,10 +108,12 @@ int main(){
                     }
                 }
                 */
+                delete login_user;
                 break;
             }
             case(3): //exit program
                 running = false;
+                delete logged_in_user;
                 break;
         }
 

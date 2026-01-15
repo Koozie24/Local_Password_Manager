@@ -9,6 +9,7 @@
 #include <cppconn/statement.h>
 #include <cppconn/prepared_statement.h>
 #include <cppconn/resultset.h>
+#include "inputs.h"
 
 class Account{
     public:
@@ -30,7 +31,7 @@ class Account{
 
     //action methods
     std::vector<unsigned char> hash_function(std::string plain_text);
-    void hash_password(const std::string& salt, const std::string& plain_password);
+    std::string hash_password(const std::string& salt, const std::string& plain_password);
     void checkUsernameExists(const std::string &search_name, std::shared_ptr<sql::Connection> conn);
     void createNewAccount(std::shared_ptr<sql::Connection> conn);
 
@@ -44,18 +45,18 @@ class Account{
             setEmail(email);
             setRandomSalt();
 
-            hash_password(salt, password_str);
+            std::string ret_hash = hash_password(salt, password_str);
+            setHash(ret_hash);
             createNewAccount(conn);
         }
         else { account_was_created = false; }
     }
 
     //sign in constructor
-    Account(std::string &name, std::string &email, std::shared_ptr<sql::Connection> conn){
+    Account(std::string &name, std::shared_ptr<sql::Connection> conn){
         checkUsernameExists(name, conn);
         if(user_exists){
             setAccount(name);
-            setEmail(email);
         }
     }
 
@@ -72,21 +73,29 @@ class Account{
 
 
 
-class Authentication : Account{
+class Authentication : public Account{
     public:
         //setter
             void setAuthStatus(bool &val) { authentication_status = val; }
-            void setExtractStatus(bool &val) { extract_hash_n_salt_success; }
+            void setExtractStatus(bool &val) { extract_hash_n_salt_success = val; }
+            void setLoginAttemptsRemaining() { login_attempts_remaining = 3; }
+            void decrementLoginAttemptsRemaining() { login_attempts_remaining--; }
+            void setInputHash(std::string hash_str) { input_pwd_hash = hash_str; }
 
         //getter
             const bool getAuthStatus() { return authentication_status; }
             const bool getExtractStatus() { return extract_hash_n_salt_success; }
+            const int getAttemptsRemaining() { return login_attempts_remaining; }
+            const std::string& getInputHash() { return input_pwd_hash; }
 
         //other methods
-        void Authentication::fetchEntryFromDb(const std::string &search_name, std::shared_ptr<sql::Connection> conn);
-        void Authentication::setValuesFromDbFetch();
+            void fetchEntryFromDb(const std::string &search_name, std::shared_ptr<sql::Connection> conn);
+            void setValuesFromDbFetch();
+            bool checkClearToAttemptAuth();
+            bool compareHashValues(const std::string &password_str_input);
+
         //constructor
-            Authentication(std::string& acct_name, std::string &acct_email, std::string& password_str, std::shared_ptr<sql::Connection> conn) : Account(acct_name, acct_email, conn){
+            Authentication(std::string& acct_name, std::shared_ptr<sql::Connection> conn) : Account(acct_name, conn){
                 if(this->getUserExists()){
                     fetchEntryFromDb(this->getAccount(), conn);
                     setValuesFromDbFetch(); //before using these vals we want to check extract status and user exists
@@ -96,6 +105,7 @@ class Authentication : Account{
         bool authentication_status;
         bool extract_hash_n_salt_success;
         std::unique_ptr<sql::ResultSet> fetched_entry;
+        int login_attempts_remaining;
+        std::string input_pwd_hash;
 };
 #endif
-

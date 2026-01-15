@@ -17,4 +17,6 @@ bool check_password_complexity(const std::string& password);
 bool check_valid_email(const std::string& email);
 std::vector<std::string> take_input_for_new_account();
 
+std::string take_login_attempt_name();
+std::string take_login_attempt_password();
 #endif

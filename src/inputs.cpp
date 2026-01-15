@@ -4,6 +4,7 @@
 #include "../include/inputs.h"
 
 std::string take_string_input(){
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); //clear input buffer
     for(;;){
         std::string user_input;
         getline(std::cin, user_input);
@@ -128,4 +129,18 @@ std::vector<std::string> take_input_for_new_account(){
     }
 
     return account_details;
+}
+
+std::string take_login_attempt_name(){
+    std::cout << "\n\n\t\t Account Name: ";
+    std::string account = take_string_input();
+
+    return account;
+}
+
+std::string take_login_attempt_password(){
+    std::cout << "\n\t\t Password: ";
+    std::string password = take_string_input();
+
+    return password;
 }
