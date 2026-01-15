@@ -8,8 +8,6 @@
 #include "../include/inputs.h"
 #include "../include/db_operations.h"
 
-//prototypes
-std::vector<std::string> create_new_account(Session& session);
 
 int main(){
     std::srand(std::time(0)); // seed random 
@@ -18,39 +16,44 @@ int main(){
     Creds credentials;
     const std::string file_path = "info.txt";
     read_in_creds(file_path, credentials);
-    std::cout << "Account is: " << "Z" << credentials.account << "Z" << "\n";
-    std::cout << "Password is: " << "Z" << credentials.password << "Z" << "\n";
 
     while(running){
         Session * session = new Session("tcp://127.0.0.1:3306", credentials.account, credentials.password, "PASSMATE"); //initialize session with localhost,
         std::string signed_in_user_name;
         bool current_session = false;
+
+        //show sign in/create account options
         clear_screen();
-        display_start_screen(); //show sign in/create account options
-        int start_screen_command = take_single_int_input(3); //take user command
+        display_start_screen(); 
+
+        int start_screen_command = take_single_int_input(3); //take a command from the user
         std::unique_ptr<sql::ResultSet> result_user;
-        switch(start_screen_command){ //handling sign in screen
-            case(1): {//create account
-                std::cout << "Creating an account.. " << "\n"; 
-                bool meets_input_requirements = false;
-                std::vector<std::string> account_details = create_new_account(*session); //call function to get a vector of strings containing inputs
 
-                User * new_user_account = new User(account_details[0], account_details[1], account_details[2], session->getConnection()); //create user object using account details
-                
-                //std::cout << "\n" << new_user_account->getPassword();
-                char my_first_c = new_user_account->getHashResult()[0];
-                char my_second_c = new_user_account->getHashResult()[0];
+        /*-
+        ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -----------------Switch case to handle home screen create account / sign in-------------------------------------------------------------------------------------------------------------------------------------
+        ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        */
 
-                if(my_first_c == my_second_c) std::cout << "\n Able to convert hash to char and compare success";
-                std::string test = take_string_input();
-                //create_new_user(session.getConnection(), new_user_account); //insert new user into DB
+        switch(start_screen_command){
+            case(1): //create account
+            {
+                while(1){ //loop until account is created
+                    std::cout << "Creating an account.. " << "\n"; 
+                    std::vector<std::string> account_details = take_input_for_new_account(); //call function to get a vector of strings containing inputs
 
-                break; 
+                    Account new_user_account = Account(account_details[0], account_details[1], account_details[2], session->getConnection()); //create user object using account details
+
+                    if(new_user_account.getAccountCreatedStatus()) break; //break out of loop
+                }
+                break;
             }
-            case(2): {  //account sign in scoped block
+            case(2): //account sign in
+            {  
                 const int max_attempts_allowed = 3;
                 bool attempted_sign_in = false;
                 int sign_in_attempts = 0;
+                /*
                 while(!current_session){
                     clear_screen();
                     if(attempted_sign_in) std::cout << "Username or password is incorrect..." << "\n", std::cout << "You have "<< (max_attempts_allowed - sign_in_attempts) << " attemps remaining. " << "\n";
@@ -73,6 +76,7 @@ int main(){
                         sign_in_attempts++;
                     }
                 }
+                */
                 break;
             }
             case(3): //exit program
@@ -80,6 +84,13 @@ int main(){
                 break;
         }
 
+          /*-
+        ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        -----------------Switch case to handle authenticated user functions --------------------------------------------------------------------------------------------------------------------------------------------
+        ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        */
+
+        /*
         while(current_session){ //while current user is signed in
             clear_screen();
             display_home_screen(signed_in_user_name);
@@ -101,47 +112,8 @@ int main(){
                         std::cout << "Exiting... " << "\n";
                         break;
                 }
-        }
+        } */
     }
     return 0;
 }
 
-/*function that takes inputs from user to create a new account. takes an argument of a reference to a session object
-Return a vector of strings if email is valid and password meets complexity and no account with username exists*/
-std::vector<std::string> create_new_account(Session& my_session){
-    std::vector<std::string> account_details;
-    bool meets_input_requirements = false;
-    while(!meets_input_requirements){ //get account information from user while requiremnets arent met
-        std::string new_user, passcode, new_email;
-        bool password_req = false;
-        bool email_req = false;
-        bool username_is_unique = false;
-        bool is_an_email = false;
-        std::shared_ptr<sql::ResultSet> check_user;
-
-        std::cout << "Username: ";
-        new_user = take_string_input(); // check username now in DB
-        check_user = get_username(new_user, my_session.getConnection());
-
-        std::cout << "Password: ";
-        passcode = take_string_input(); //get inputted password
-        password_req = check_password_complexity(passcode); //check for pw complexity
-
-        std::cout << "Email: ";
-        new_email = take_string_input();
-        email_req = check_valid_email(new_email);//check contains @ symbol and ends with .com/.net/.org/.gov
-
-        if(password_req == true && email_req == true && !check_user->next()){ //check bools true and ther are no rows (didnt return a user)
-            account_details.push_back(new_user);
-            account_details.push_back(passcode);
-            account_details.push_back(new_email);
-            meets_input_requirements = true;
-            break;
-        }
-        else{
-            std::cout << "\n\n\t\tSomething didnt pass my account sniffer";
-        }
-    }
-
-    return account_details;
-}

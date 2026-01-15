@@ -92,3 +92,40 @@ bool check_valid_email(const std::string& email){
 
     return is_valid_email;
 }
+
+/*function that takes inputs from user to create a new account. takes an argument of a reference to a session object
+Return a vector of strings if email is valid and password meets complexity and no account with username exists*/
+std::vector<std::string> take_input_for_new_account(){
+    std::vector<std::string> account_details;
+    bool meets_input_requirements = false;
+    while(!meets_input_requirements){ //get account information from user while requiremnets arent met
+        std::string new_user, passcode, new_email;
+        bool password_req = false;
+        bool email_req = false;
+        bool is_an_email = false;
+
+        std::cout << "Username: ";
+        new_user = take_string_input();
+
+        std::cout << "Password: ";
+        passcode = take_string_input(); //get inputted password
+        password_req = check_password_complexity(passcode); //check for pw complexity
+
+        std::cout << "Email: ";
+        new_email = take_string_input();
+        email_req = check_valid_email(new_email);//check contains @ symbol and ends with .com/.net/.org/.gov
+
+        if(password_req == true && email_req == true){ //check bools true and ther are no rows (didnt return a user)
+            account_details.push_back(new_user);
+            account_details.push_back(passcode);
+            account_details.push_back(new_email);
+            meets_input_requirements = true;
+            break;
+        }
+        else{
+            std::cout << "\n\n\t\tSomething didnt pass my account sniffer";
+        }
+    }
+
+    return account_details;
+}
